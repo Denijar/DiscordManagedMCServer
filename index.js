@@ -54,49 +54,33 @@ exports.handler = async (event) => {
     };
   }
 
+  const response = {
+    statusCode: 200,
+    type: 4,
+    data: {},
+  };
+
   // gloss your eyes over the cheesy stuff here
   switch (event["body-json"].data.name) {
     case commands.TAIT:
-      return {
-        statusCode: 200,
-
-        type: 4,
-        data: {
-          content: "Tait is my boy!",
-        },
-      };
+      response.data.content = "Tait is my boy!";
+      break;
     case commands.DENISE:
-      return {
-        statusCode: 200,
-        type: 4,
-        data: {
-          content: "Denise is my bubby!",
-        },
-      };
+      response.data.content = "Denise is my bubby!";
+      break;
     case commands.START_INSTANCE:
       const success = await startInstance();
-      return success
-        ? {
-            statusCode: 200,
-            type: 4,
-            data: {
-              content: "Minecraft server started",
-            },
-          }
-        : {
-            statusCode: 500,
-            type: 4,
-            data: {
-              content: "Error starting Minecraft server",
-            },
-          };
+      if (success) {
+        response.data.content = "Minecraft server started";
+        break;
+      }
+      response.statusCode = 500;
+      response.data.content = "Error starting Minecraft server";
+      break;
     default:
-      return {
-        statusCode: 400,
-        type: 4,
-        data: {
-          content: "Unknown command",
-        },
-      };
+      response.statusCode = 400;
+      response.data.content = "Unknown command";
   }
+
+  return response;
 };
