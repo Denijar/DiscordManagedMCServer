@@ -6,6 +6,7 @@ const commands = {
   TAIT: "tait",
   DENISE: "denise",
   START_INSTANCE: "start",
+  STOP_INSTANCE: "stop",
 };
 
 const verifySignature = (event) => {
@@ -29,10 +30,23 @@ const pingPong = (body) => {
 
 const startInstance = async () => {
   try {
-    var params = {
+    const params = {
       InstanceIds: [process.env.INSTANCE_ID],
     };
     await ec2.startInstances(params).promise();
+    return true;
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
+};
+
+const stopInstance = async () => {
+  try {
+    const params = {
+      InstanceIds: [process.env.INSTANCE_ID],
+    };
+    await ec2.stopInstances(params).promise();
     return true;
   } catch (error) {
     console.error(error);
@@ -69,13 +83,22 @@ exports.handler = async (event) => {
       response.data.content = "Denise is my bubby!";
       break;
     case commands.START_INSTANCE:
-      const success = await startInstance();
-      if (success) {
+      const started = await startInstance();
+      if (started) {
         response.data.content = "Minecraft server started";
         break;
       }
       response.statusCode = 500;
       response.data.content = "Error starting Minecraft server";
+      break;
+    case commands.STOP_INSTANCE:
+      const stopped = await stopInstance();
+      if (stopped) {
+        response.data.content = "Minecraft server stopped";
+        break;
+      }
+      response.statusCode = 500;
+      response.data.content = "Error stopping Minecraft server";
       break;
     default:
       response.statusCode = 400;
