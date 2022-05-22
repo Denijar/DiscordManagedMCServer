@@ -29,13 +29,12 @@ const pingPong = (body) => {
 };
 
 const minecraftServer = async (command) => {
-  const params = {
-    FunctionName: "minecraftServer",
-    InvocationType: "Event",
-    Payload: JSON.stringify({ command }),
-  };
-
   try {
+    const params = {
+      FunctionName: "minecraftServer",
+      InvocationType: "Event",
+      Payload: JSON.stringify({ command }),
+    };
     await lambda.invoke(params).promise();
   } catch (error) {
     console.error(error);
@@ -76,7 +75,7 @@ exports.handler = async (event) => {
     case commands.START_SERVER:
       const started = await minecraftServer(commands.START_SERVER);
       if (started) {
-        response.data.content = "Minecraft server started";
+        response.data.content = "Minecraft server starting...";
         break;
       }
       response.statusCode = 500;
@@ -85,7 +84,7 @@ exports.handler = async (event) => {
     case commands.STOP_SERVER:
       const stopped = await minecraftServer(commands.STOP_SERVER);
       if (stopped) {
-        response.data.content = "Minecraft server stopped";
+        response.data.content = "Minecraft server stopping...";
         break;
       }
       response.statusCode = 500;

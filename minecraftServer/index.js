@@ -30,8 +30,6 @@ const stopInstance = async () => {
 };
 
 exports.handler = async (event) => {
-  console.log(event);
-
   switch (event.command) {
     case commands.START_INSTANCE:
       await startInstance();
