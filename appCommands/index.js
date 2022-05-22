@@ -1,12 +1,12 @@
 const nacl = require("tweetnacl");
 const AWS = require("aws-sdk");
-var ec2 = new AWS.EC2();
+var lambda = new AWS.Lambda();
 
 const commands = {
   TAIT: "tait",
   DENISE: "denise",
-  START_INSTANCE: "start",
-  STOP_INSTANCE: "stop",
+  START_SERVER: "start",
+  STOP_SERVER: "stop",
 };
 
 const verifySignature = (event) => {
@@ -28,30 +28,20 @@ const pingPong = (body) => {
   return false;
 };
 
-const startInstance = async () => {
+const minecraftServer = async (command) => {
   try {
     const params = {
-      InstanceIds: [process.env.INSTANCE_ID],
+      FunctionName: "minecraftServer",
+      InvocationType: "Event",
+      Payload: JSON.stringify({ command }),
     };
-    await ec2.startInstances(params).promise();
-    return true;
+    await lambda.invoke(params).promise();
   } catch (error) {
     console.error(error);
     return false;
   }
-};
 
-const stopInstance = async () => {
-  try {
-    const params = {
-      InstanceIds: [process.env.INSTANCE_ID],
-    };
-    await ec2.stopInstances(params).promise();
-    return true;
-  } catch (error) {
-    console.error(error);
-    return false;
-  }
+  return true;
 };
 
 exports.handler = async (event) => {
@@ -82,19 +72,19 @@ exports.handler = async (event) => {
     case commands.DENISE:
       response.data.content = "Denise is my bubby!";
       break;
-    case commands.START_INSTANCE:
-      const started = await startInstance();
+    case commands.START_SERVER:
+      const started = await minecraftServer(commands.START_SERVER);
       if (started) {
-        response.data.content = "Minecraft server started";
+        response.data.content = "Minecraft server starting...";
         break;
       }
       response.statusCode = 500;
       response.data.content = "Error starting Minecraft server";
       break;
-    case commands.STOP_INSTANCE:
-      const stopped = await stopInstance();
+    case commands.STOP_SERVER:
+      const stopped = await minecraftServer(commands.STOP_SERVER);
       if (stopped) {
-        response.data.content = "Minecraft server stopped";
+        response.data.content = "Minecraft server stopping...";
         break;
       }
       response.statusCode = 500;
