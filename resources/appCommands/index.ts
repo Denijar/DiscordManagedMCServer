@@ -1,39 +1,43 @@
-import nacl = require("tweetnacl");
-import AWS = require("aws-sdk");
+import nacl = require('tweetnacl');
+import AWS = require('aws-sdk');
 import { TAIT, DENISE, START_SERVER, STOP_SERVER } from '../common/constants';
 
 const lambda = new AWS.Lambda();
 
-type Command = typeof TAIT | typeof DENISE | typeof START_SERVER | typeof STOP_SERVER;
+type Command =
+    | typeof TAIT
+    | typeof DENISE
+    | typeof START_SERVER
+    | typeof STOP_SERVER;
 
 interface Body {
-    type: number,
+    type: number;
     data: {
-        name: Command,
-        content: string
-    }
+        name: Command;
+        content: string;
+    };
 }
 
 interface Event {
     params: {
         header: {
-            'x-signature-ed25519': string,
-            'x-signature-timestamp': string,
-        }
-    },
-    rawBody: string,
-    'body-json': Body
+            'x-signature-ed25519': string;
+            'x-signature-timestamp': string;
+        };
+    };
+    rawBody: string;
+    'body-json': Body;
 }
 
 const verifySignature = (event: Event) => {
-    const signature = event.params.header["x-signature-ed25519"];
-    const timestamp = event.params.header["x-signature-timestamp"];
+    const signature = event.params.header['x-signature-ed25519'];
+    const timestamp = event.params.header['x-signature-timestamp'];
     const body = event.rawBody;
 
     return nacl.sign.detached.verify(
         Buffer.from(timestamp + body),
-        Buffer.from(signature, "hex"),
-        Buffer.from(process.env.PUBLIC_KEY || "", "hex")
+        Buffer.from(signature, 'hex'),
+        Buffer.from(process.env.DISCORD_PUBLIC_KEY || '', 'hex')
     );
 };
 
@@ -47,8 +51,8 @@ const pingPong = (body: Body) => {
 const minecraftServer = async (command: Command) => {
     try {
         const params = {
-            FunctionName: "minecraftServer",
-            InvocationType: "Event",
+            FunctionName: 'minecraftServer',
+            InvocationType: 'Event',
             Payload: JSON.stringify({ command }),
         };
         await lambda.invoke(params).promise();
@@ -67,7 +71,7 @@ exports.handler = async (event: Event) => {
         };
     }
 
-    if (pingPong(event["body-json"])) {
+    if (pingPong(event['body-json'])) {
         return {
             statusCode: 200,
             type: 1,
@@ -78,39 +82,39 @@ exports.handler = async (event: Event) => {
         statusCode: 200,
         type: 4,
         data: {
-            content: ""
+            content: '',
         },
     };
 
     // gloss your eyes over the cheesy stuff here
-    switch (event["body-json"].data.name) {
+    switch (event['body-json'].data.name) {
         case TAIT:
-            response.data.content = "Tait is my boy!";
+            response.data.content = 'Tait is my boy!';
             break;
         case DENISE:
-            response.data.content = "Denise is my bubby!";
+            response.data.content = 'Denise is my bubby!';
             break;
         case START_SERVER:
             const started = await minecraftServer(START_SERVER);
             if (started) {
-                response.data.content = "Minecraft server starting...";
+                response.data.content = 'Minecraft server starting...';
                 break;
             }
             response.statusCode = 500;
-            response.data.content = "Error starting Minecraft server";
+            response.data.content = 'Error starting Minecraft server';
             break;
         case STOP_SERVER:
             const stopped = await minecraftServer(STOP_SERVER);
             if (stopped) {
-                response.data.content = "Minecraft server stopping...";
+                response.data.content = 'Minecraft server stopping...';
                 break;
             }
             response.statusCode = 500;
-            response.data.content = "Error stopping Minecraft server";
+            response.data.content = 'Error stopping Minecraft server';
             break;
         default:
             response.statusCode = 400;
-            response.data.content = "Unknown command";
+            response.data.content = 'Unknown command';
     }
 
     return response;

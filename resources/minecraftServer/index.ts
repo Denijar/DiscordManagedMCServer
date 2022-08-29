@@ -1,10 +1,10 @@
-import AWS = require("aws-sdk");
-import { START_SERVER, STOP_SERVER } from "../common/constants";
+import AWS = require('aws-sdk');
+import { START_SERVER, STOP_SERVER } from '../common/constants';
 
 var ec2 = new AWS.EC2();
 
 interface Event {
-    command: typeof START_SERVER | typeof STOP_SERVER
+    command: typeof START_SERVER | typeof STOP_SERVER;
 }
 
 const startInstance = async (instanceId: string) => {
@@ -34,7 +34,7 @@ const stopInstance = async (instanceId: string) => {
 exports.handler = async (event: Event) => {
     const instanceId = process.env.INSTANCE_ID;
     if (!instanceId) {
-        console.error("env variable INSTANCE_ID is undefined");
+        console.error('env variable INSTANCE_ID is undefined');
         return;
     }
 
