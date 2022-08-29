@@ -2,27 +2,25 @@ import * as path from "path";
 import { Stack, StackProps } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { aws_lambda as lambda } from "aws-cdk-lib";
+import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 
 export class ServiceDogStack extends Stack {
-  constructor(scope: Construct, id: string, props?: StackProps) {
-    super(scope, id, props);
+    constructor(scope: Construct, id: string, props?: StackProps) {
+        super(scope, id, props);
 
-    new lambda.Function(this, "appCommands", {
-      runtime: lambda.Runtime.NODEJS_16_X,
-      code: lambda.Code.fromAsset(path.join("resources", "appCommands")),
-      handler: "index.handler",
-    });
+        new NodejsFunction(this, "appCommands", {
+            runtime: lambda.Runtime.NODEJS_16_X,
+            entry: path.join("resources", "appCommands", "index.ts"),
+        });
 
-    new lambda.Function(this, "minecraftServer", {
-      runtime: lambda.Runtime.NODEJS_16_X,
-      code: lambda.Code.fromAsset(path.join("resources", "minecraftServer")),
-      handler: "index.handler",
-    });
+        new NodejsFunction(this, "minecraftServer", {
+            runtime: lambda.Runtime.NODEJS_16_X,
+            entry: path.join("resources", "minecraftServer", "index.ts"),
+        });
 
-    new lambda.Function(this, "postIpAddress", {
-      runtime: lambda.Runtime.NODEJS_16_X,
-      code: lambda.Code.fromAsset(path.join("resources", "postIpAddress")),
-      handler: "index.handler",
-    });
-  }
+        new NodejsFunction(this, "postIpAddress", {
+            runtime: lambda.Runtime.NODEJS_16_X,
+            entry: path.join("resources", "postIpAddress", "index.ts"),
+        });
+    }
 }
