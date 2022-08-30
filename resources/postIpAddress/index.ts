@@ -30,7 +30,7 @@ exports.handler = async (event: Event) => {
             },
             {
                 headers: {
-                    Authorization: `Bot ${process.env.BOT_TOKEN}`,
+                    Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}`,
                 },
             }
         );
