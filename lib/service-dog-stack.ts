@@ -6,10 +6,7 @@ import { aws_lambda as lambda } from 'aws-cdk-lib';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { Rule } from 'aws-cdk-lib/aws-events';
-import {
-    addLambdaPermission,
-    LambdaFunction,
-} from 'aws-cdk-lib/aws-events-targets';
+import { LambdaFunction } from 'aws-cdk-lib/aws-events-targets';
 
 export class ServiceDogStack extends Stack {
     constructor(scope: Construct, id: string, props?: StackProps) {
